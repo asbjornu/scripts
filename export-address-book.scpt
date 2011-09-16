@@ -9,11 +9,17 @@ on error
 end try
 
 tell application "Address Book"
-	repeat with p in (every person)
+	set personcount to count of every person
+	repeat with i from 1 to personcount
+		set p to person i
 		set firstname to (first name of p as Unicode text)
 		set lastname to (last name of p as Unicode text)
 		set middlename to (middle name of p as Unicode text)
 		set orgname to (organization of p as Unicode text)
+
+		tell application "System Events"
+			display dialog "Processing message " & i & " of " & personcount giving up after 1 with icon note
+		end tell
 
 		if firstname ≠ "" and firstname ≠ "missing value" and lastname ≠ "" and lastname ≠ "missing value" then
 			if middlename = "" or middlename = "missing value" then
