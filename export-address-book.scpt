@@ -18,7 +18,7 @@ tell application "Address Book"
 		set orgname to (organization of p as Unicode text)
 
 		tell application "System Events"
-			display dialog "Processing message " & i & " of " & personcount giving up after 1 with icon note
+			display dialog "Exporting entry " & i & " of " & personcount giving up after 1 with icon note
 		end tell
 
 		if firstname ≠ "" and firstname ≠ "missing value" and lastname ≠ "" and lastname ≠ "missing value" then
