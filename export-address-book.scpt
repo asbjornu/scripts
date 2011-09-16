@@ -18,13 +18,15 @@ tell application "Address Book"
 		set orgname to (organization of p as Unicode text)
 
 		tell application "System Events"
-			set result to display dialog "Exporting entry " & i & " of " & personcount ¬
-				buttons {"Stop"} ¬
-				default button 1 ¬
-				giving up after 1 ¬
-				with title "Exporting..." with icon note
+			try
+				set result to display dialog "Exporting entry " & i & " of " & personcount ¬
+					buttons {"Stop"} ¬
+					default button 1 ¬
+					giving up after 1 ¬
+					with title "Exporting..." with icon note
 
-			if button returned of result = "Stop" then return
+				if button returned of result = "Stop" then return
+			end try
 		end tell
 
 		if firstname ≠ "" and firstname ≠ "missing value" and lastname ≠ "" and lastname ≠ "missing value" then
