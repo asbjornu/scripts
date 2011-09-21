@@ -12,10 +12,10 @@ tell application "Address Book"
 	set personcount to count of every person
 	repeat with i from 1 to personcount
 		set p to person i
-		set firstname to (first name of p as Unicode text)
-		set lastname to (last name of p as Unicode text)
-		set middlename to (middle name of p as Unicode text)
-		set orgname to (organization of p as Unicode text)
+		set firstname to first name of p
+		set lastname to last name of p
+		set middlename to middle name of p
+		set orgname to organization of p
 
 		tell application "System Events"
 			try
@@ -29,15 +29,15 @@ tell application "Address Book"
 			end try
 		end tell
 
-		if firstname ≠ "" and firstname ≠ "missing value" and lastname ≠ "" and lastname ≠ "missing value" then
-			if middlename = "" or middlename = "missing value" then
+		if firstname is not equal to "" and firstname is not missing value and lastname is not equal to "" and lastname is not missing value then
+			if middlename is equal to "" or middlename is missing value then
 				set middlename to "" as Unicode text
 			else
 				set middlename to middlename & " " as Unicode text
 			end if
 
 			set filename to (firstname & " " & middlename & lastname & ".vcf") as Unicode text
-		else if orgname ≠ "" and orgname ≠ "missing value" then
+		else if orgname is not equal to "" and orgname is not missing value then
 			set filename to (orgname & ".vcf") as Unicode text
 		else
 			set filename to "No Name.vcf" as Unicode text
@@ -47,10 +47,10 @@ tell application "Address Book"
 		set card to (get vcard of p) as Unicode text
 
 		try
-			set ff to open for access file filepath with write permission
-			set eof ff to 0
-			write card to ff
-			close access ff
+			set output to open for access file filepath with write permission
+			set eof output to 0
+			write card to output
+			close access output
 		on error
 			try
 				close access file filepath
