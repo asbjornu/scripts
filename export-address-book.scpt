@@ -9,25 +9,27 @@ on error
 end try
 
 tell application "Address Book"
-	set personcount to count of every person
-	repeat with i from 1 to personcount
-		set p to person i
-		set firstname to first name of p
-		set lastname to last name of p
-		set middlename to middle name of p
-		set orgname to organization of p
+	set groupnames to name of every group
+	copy "All" to the beginning of groupnames
+	set selectedgroups to choose from list groupnames ¬
+		with title "Groups" with prompt "Choose group(s) to export" with multiple selections allowed
 
-		tell application "System Events"
-			try
-				set result to display dialog "Exporting entry " & i & " of " & personcount ¬
-					buttons {"Stop"} ¬
-					default button 1 ¬
-					giving up after 1 ¬
-					with title "Exporting..." with icon note
+	if selectedgroups is equal to false then return
 
-				if button returned of result = "Stop" then return
-			end try
-		end tell
+	if selectedgroups contains "All" then
+		set contacts to every person
+	else
+		set contacts to {}
+		repeat with selectedgroup in selectedgroups
+			copy every person in group selectedgroup to contacts
+		end repeat
+	end if
+
+	repeat with contact in contacts
+		set firstname to first name of contact
+		set lastname to last name of contact
+		set middlename to middle name of contact
+		set orgname to organization of contact
 
 		if firstname is not equal to "" and firstname is not missing value and lastname is not equal to "" and lastname is not missing value then
 			if middlename is equal to "" or middlename is missing value then
@@ -44,7 +46,7 @@ tell application "Address Book"
 		end if
 
 		set filepath to (targetfolder as Unicode text) & (filename as Unicode text)
-		set card to (get vcard of p) as Unicode text
+		set card to (get vcard of contact) as Unicode text
 
 		try
 			set output to open for access file filepath with write permission
@@ -57,4 +59,6 @@ tell application "Address Book"
 			end try
 		end try
 	end repeat
+
+	display dialog "Finished exporting " & (count of contacts) & " contacts!"
 end tell
