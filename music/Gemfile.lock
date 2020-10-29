@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    docopt (0.6.1)
+    plist (3.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  docopt
+  plist
+
+BUNDLED WITH
+   2.1.4
