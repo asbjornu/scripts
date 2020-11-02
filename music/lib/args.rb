@@ -11,7 +11,7 @@ module LoveImporter
 
         Usage:
           #{__FILE__} [-h | --help]
-      #{__FILE__} import <path>
+          #{__FILE__} import <path>
 
     Commands:
       import              Import the <iTunes Music Library.xml> given in <path>
