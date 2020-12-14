@@ -10,8 +10,8 @@ module LoveImporter
         file into the current iTunes or Apple Music library.
 
         Usage:
-          #{__FILE__} [-h | --help]
-          #{__FILE__} import <path>
+          #{$PROGRAM_NAME} [-h | --help]
+          #{$PROGRAM_NAME} import <path>
 
     Commands:
       import              Import the <iTunes Music Library.xml> given in <path>
