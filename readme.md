@@ -1,4 +1,4 @@
-# macOS Scripts
+# Scripts
 
-This repository contains various useful scripts for automating stuff in Apple
-macOS.
+This repository contains Various useful scripts for automating different things.
+Only tested on Apple macOS.
