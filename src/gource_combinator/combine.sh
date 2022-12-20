@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ## combine and clean logs ready for gource
 ## https://github.com/acaudwell/Gource/wiki/Visualizing-Multiple-Repositories
+# shellcheck disable=SC2002
 
 set -o errexit # Abort if any command fails
 me=$(basename "$0")
@@ -483,7 +484,7 @@ main() {
     parse_args "$@"
     enable_expanded_output
 
-    if [ ! $no_clone ]; then
+    if [ ! "${no_clone}" ]; then
       clone_repositories
     else
       echo "Skipping repository clone"
