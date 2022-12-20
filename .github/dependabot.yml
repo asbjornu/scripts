@@ -1,0 +1,26 @@
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: "/src/gource_combinator"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: Europe/Oslo
+- package-ecosystem: bundler
+  directory: "/src/photos"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: Europe/Oslo
+- package-ecosystem: bundler
+  directory: "/src/github-stats"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: Europe/Oslo
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: Europe/Oslo
