@@ -45,68 +45,76 @@ Arguments:
   -v, --verbose                 Increase verbosity. Useful for debugging."
 
 parse_args() {
-    while : ; do
-        if [[ $1 = "-h" || $1 = "--help" ]]; then
-            echo "${help_message}"
-            return 0
-        elif [[ $1 = "-v" || $1 = "--verbose" ]]; then
-            verbose=true
-            shift
-        elif [[ $1 = "-i" || $1 = "--fade-in" ]]; then
-            fade_in=${2// }
-            shift 2
-        elif [[ $1 = "-o" || $1 = "--fade-out" ]]; then
-            fade_out=${2// }
-            shift 2
-        elif [[ $1 = "-f" || $1 = "--file" ]]; then
-            file=${2// }
-            shift 2
-        else
-            break
-        fi
-    done
+  while : ; do
+      if [[ $1 = "-h" || $1 = "--help" ]]; then
+          echo "${help_message}"
+          return 0
+      elif [[ $1 = "-v" || $1 = "--verbose" ]]; then
+          verbose=true
+          shift
+      elif [[ $1 = "-i" || $1 = "--fade-in" ]]; then
+          fade_in=${2// }
+          shift 2
+      elif [[ $1 = "-o" || $1 = "--fade-out" ]]; then
+          fade_out=${2// }
+          shift 2
+      elif [[ $1 = "-f" || $1 = "--file" ]]; then
+          file=${2// }
+          shift 2
+      else
+          break
+      fi
+  done
 
-    if [[ -z "${file}" ]]; then
-        echo "Missing required argument: --file <input-file>" >&2
-        echo "${help_message}"
-        return 1
-    elif [ "${verbose}" = true ]; then
-      echo "Input file: ${file}"
-    fi
+  if [[ -z "${file}" ]]; then
+      echo "Missing required argument: --file <input-file>" >&2
+      echo "${help_message}"
+      return 1
+  elif [ ! -f "${file}" ]; then
+      echo "Input file '${file}' does not exist" >&2
+      echo "${help_message}"
+      return 1
+  elif [ "${verbose}" = true ]; then
+    echo "Input file: ${file}"
+  fi
 
-    if [[ -z "${fade_in}" && -z "${fade_out}" ]]; then
-        echo "If neither --fade-in nor --fade-out are specified, there is nothing to do." >&2
-        echo "${help_message}"
-        return 1
-    fi
+  if [[ -z "${fade_in}" && -z "${fade_out}" ]]; then
+      echo "If neither --fade-in nor --fade-out are specified, there is nothing to do." >&2
+      echo "${help_message}"
+      return 1
+  fi
 
-    if [[ -z $fade_in || ${fade_in//[0-9]} ]]; then
-        echo "Fade-in seconds '${fade_in}' not numerical" >&2
-        echo "${help_message}"
-        return 1
-    fi
+  if [[ -z $fade_in || ${fade_in//[0-9]} ]]; then
+      echo "Fade-in seconds '${fade_in}' not numerical" >&2
+      echo "${help_message}"
+      return 1
+  fi
 
-    if [[ -z $fade_out || ${fade_out//[0-9]} ]]; then
-        echo "Fade-in seconds '${fade_out}' not numerical" >&2
-        echo "${help_message}"
-        return 1
-    fi
+  if [[ -z $fade_out || ${fade_out//[0-9]} ]]; then
+      echo "Fade-in seconds '${fade_out}' not numerical" >&2
+      echo "${help_message}"
+      return 1
+  fi
 
-    if [ "${verbose}" = true ]; then
-      [ -n "${fade_in}" ] && echo "Fade in: ${fade_in}"
-      [ -n "${fade_out}" ] && echo "Fade out: ${fade_out}"
-    fi
+  if [ "${verbose}" = true ]; then
+    [ -n "${fade_in}" ] && echo "Fade in: ${fade_in}"
+    [ -n "${fade_out}" ] && echo "Fade out: ${fade_out}"
+  fi
+
+  return 0
 }
 
 # Echo expanded commands as they are executed (for debugging)
 enable_expanded_output() {
-    if [ "${verbose}" = true ]; then
-        set -o xtrace
-        set +o verbose
-    fi
+  if [ "${verbose}" = true ]; then
+    set -o xtrace
+    set +o verbose
+  fi
 }
 
 probe_length() {
+  if [ -z "${file}" ]; then return 1; fi
+
   # `ffprobe` gives us the length of the video in seconds
   video_length=$(\
     ffprobe \
@@ -152,10 +160,10 @@ fade_in_out() {
 }
 
 main() {
-    parse_args "$@"
     enable_expanded_output
-    probe_length
-    fade_in_out
+    if parse_args "$@" ; then
+      probe_length && fade_in_out
+    fi
 }
 
 main "$@"
