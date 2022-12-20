@@ -73,10 +73,10 @@ parse_args() {
     error "Missing required argument: --file <input-file>"
     return 1
   elif [ ! -f "${file}" ]; then
-    error "Input file '${file}' does not exist"
+    error "Input file '${file}' does not exist."
     return 1
   elif [ "${verbose}" = true ]; then
-    echo "Input file: ${file}"
+    echo "Input file: ${file}."
   fi
 
   if [[ -z "${fade_in}" && -z "${fade_out}" ]]; then
@@ -85,18 +85,18 @@ parse_args() {
   fi
 
   if [[ -n $fade_in && ${fade_in//[0-9]} ]]; then
-    error "Fade-in seconds '${fade_in}' not numerical"
+    error "Fade-in seconds '${fade_in}' not numerical."
     return 1
   fi
 
   if [[ -n $fade_out && ${fade_out//[0-9]} ]]; then
-    error "Fade-in seconds '${fade_out}' not numerical"
+    error "Fade-out seconds '${fade_out}' not numerical."
     return 1
   fi
 
   if [ "${verbose}" = true ]; then
-    [ -n "${fade_in}" ] && echo "Fade in: ${fade_in}"
-    [ -n "${fade_out}" ] && echo "Fade out: ${fade_out}"
+    [ -n "${fade_in}" ] && echo "Fade in: ${fade_in}."
+    [ -n "${fade_out}" ] && echo "Fade out: ${fade_out}."
   fi
 
   return 0
@@ -104,7 +104,7 @@ parse_args() {
 
 error () {
   echo ""
-  echo "Error: $1" >&2
+  echo "Error! $1" >&2
   echo ""
   echo "${usage_message}"
   return 1
