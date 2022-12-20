@@ -27,14 +27,14 @@ cp "$input" "$output"
 numframes=$(gifsicle -I "$input" | grep -P "\d+ images" --only-matching | grep -P "\d+" --only-matching)
 
 # Deletion
-let i=0
+i=0
 while [[ $i -lt $numframes  ]]; do
-    rem=$(( $i % 2 ))
+    rem=$(( i % 2 ))
 
     if [ $rem -eq 0 ]
     then
-        gifsicle $output --delete "#"$(($i/2)) -o $output
+        gifsicle "$output" --delete "#"$((i/2)) -o "$output"
     fi
 
-    let i=i+1
+    i=$i+1
 done
