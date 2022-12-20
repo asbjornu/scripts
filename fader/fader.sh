@@ -46,10 +46,12 @@ parse_args() {
         echo "Missing required argument: --file <input-file>" >&2
         echo "${help_message}"
         return 1
+    elif [ "${verbose}" = true ]; then
+      echo "Input file: ${file}"
     fi
 
     if [[ -z "${fade_in}" && -z "${fade_out}" ]]; then
-        echo "If neither --fade-in nor --fade-out is specified, there is nothing to do." >&2
+        echo "If neither --fade-in nor --fade-out are specified, there is nothing to do." >&2
         echo "${help_message}"
         return 1
     fi
@@ -65,6 +67,11 @@ parse_args() {
         echo "${help_message}"
         return 1
     fi
+
+    if [ "${verbose}" = true ]; then
+      [ -n "${fade_in}" ] && echo "Fade in: ${fade_in}"
+      [ -n "${fade_out}" ] && echo "Fade out: ${fade_out}"
+    fi
 }
 
 # Echo expanded commands as they are executed (for debugging)
@@ -76,26 +83,39 @@ enable_expanded_output() {
 }
 
 probe_length() {
-  # `ffprobe` gives us the length of the video in decimal seconds
-  video_length=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "${file}")
+  # `ffprobe` gives us the length of the video in seconds
+  video_length=$(\
+    ffprobe \
+      -loglevel error \
+      -select_streams v:0 \
+      -show_entries stream=duration \
+      -of default=noprint_wrappers=1:nokey=1 \
+      "${file}" \
+  )
+
+  [ "${verbose}" = true ] && echo "Video length: ${video_length} seconds."
 }
 
 fade_in_out() {
   local video_filter=""
   local audio_filter=""
   local time_start
-  # `bc` performs the floating point math required to calculate the start time
-  time_start="$(echo "${video_length}" - "${fade_out}" | bc)"
 
   if [[ -n "${fade_in}" ]]; then
     video_filter="fade=t=in:st=0:d=${fade_in}"
     audio_filter="afade=t=in:st=0:d=${fade_in}"
   fi
+
   if [[ -n "${fade_out}" ]]; then
     if [[ -n "${video_filter}" ]]; then
       video_filter="${video_filter},"
       audio_filter="${audio_filter},"
     fi
+    # `bc` performs the floating point math required to calculate the start time
+    time_start="$(echo "${video_length}" - "${fade_out}" | bc)"
+
+    [ "${verbose}" = true ] && echo "Fade out start time: ${time_start} seconds."
+
     video_filter="${video_filter}fade=t=out:st=${time_start}:d=${fade_out}"
     audio_filter="${audio_filter}afade=t=out:st=${time_start}:d=${fade_out}"
   fi
