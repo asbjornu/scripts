@@ -26,9 +26,7 @@
 set -o errexit # Abort if any command fails
 me=$(basename "$0")
 
-help_message="\
-Fades in and out the video and audio of a file, using ffmpeg.
-
+usage_message="\
 Usage:
   ${me} --file <input-file> [--fade-in <seconds>] [--fade-out <seconds>] [--verbose]
   ${me} --help
@@ -43,6 +41,11 @@ Arguments:
                                 number of seconds.
   -h, --help                    Displays this help screen.
   -v, --verbose                 Increase verbosity. Useful for debugging."
+
+help_message="\
+Fades in and out the video and audio of a file, using ffmpeg.
+
+${usage_message}"
 
 parse_args() {
   while : ; do
@@ -67,33 +70,28 @@ parse_args() {
   done
 
   if [[ -z "${file}" ]]; then
-      echo "Missing required argument: --file <input-file>" >&2
-      echo "${help_message}"
-      return 1
+    error "Missing required argument: --file <input-file>"
+    return 1
   elif [ ! -f "${file}" ]; then
-      echo "Input file '${file}' does not exist" >&2
-      echo "${help_message}"
-      return 1
+    error "Input file '${file}' does not exist"
+    return 1
   elif [ "${verbose}" = true ]; then
     echo "Input file: ${file}"
   fi
 
   if [[ -z "${fade_in}" && -z "${fade_out}" ]]; then
-      echo "If neither --fade-in nor --fade-out are specified, there is nothing to do." >&2
-      echo "${help_message}"
-      return 1
+    error "If neither --fade-in nor --fade-out are specified, there is nothing to do."
+    return 1
   fi
 
-  if [[ -z $fade_in || ${fade_in//[0-9]} ]]; then
-      echo "Fade-in seconds '${fade_in}' not numerical" >&2
-      echo "${help_message}"
-      return 1
+  if [[ -n $fade_in && ${fade_in//[0-9]} ]]; then
+    error "Fade-in seconds '${fade_in}' not numerical"
+    return 1
   fi
 
-  if [[ -z $fade_out || ${fade_out//[0-9]} ]]; then
-      echo "Fade-in seconds '${fade_out}' not numerical" >&2
-      echo "${help_message}"
-      return 1
+  if [[ -n $fade_out && ${fade_out//[0-9]} ]]; then
+    error "Fade-in seconds '${fade_out}' not numerical"
+    return 1
   fi
 
   if [ "${verbose}" = true ]; then
@@ -102,6 +100,14 @@ parse_args() {
   fi
 
   return 0
+}
+
+error () {
+  echo ""
+  echo "Error: $1" >&2
+  echo ""
+  echo "${usage_message}"
+  return 1
 }
 
 # Echo expanded commands as they are executed (for debugging)
@@ -126,11 +132,13 @@ probe_length() {
   )
 
   [ "${verbose}" = true ] && echo "Video length: ${video_length} seconds."
+
+  return 0
 }
 
 fade_in_out() {
-  local video_filter=""
-  local audio_filter=""
+  local video_filter
+  local audio_filter
   local time_start
 
   if [[ -n "${fade_in}" ]]; then
