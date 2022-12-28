@@ -3,8 +3,6 @@
 setup() {
   load 'test_helper/bats-support/load'
   load 'test_helper/bats-assert/load'
-  # ... the remaining setup is unchanged
-
   # get the containing directory of this file
   # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0,
   # as those will point to the bats executable's location or the preprocessed file respectively
@@ -34,18 +32,30 @@ setup() {
 
 @test "--fade-in must be numerical" {
   run fader.sh --file /tmp/foo.mp4 --fade-in foo
-  assert_output --partial "Error! Fade-in seconds 'foo' not numerical"
+  assert_output --partial "Error! Fade-in seconds 'foo' not numerical."
   assert_output --partial "Usage:"
 }
 
 @test "--fade-out must be numerical" {
   run fader.sh --file /tmp/foo.mp4 --fade-out foo
-  assert_output --partial "Error! Fade-out seconds 'foo' not numerical"
+  assert_output --partial "Error! Fade-out seconds 'foo' not numerical."
+  assert_output --partial "Usage:"
+}
+
+@test "--resolution must be separated by colon" {
+  run fader.sh --file /tmp/foo.mp4 --fade-out 1 --resolution 1920x1080
+  assert_output --partial "Error! The resolution '1920x1080' is not provided in the correct 'width:height' format."
+  assert_output --partial "Usage:"
+}
+
+@test "--resolution must be correct format" {
+  run fader.sh --file /tmp/foo.mp4 --fade-out 1 --resolution xyz:abc
+  assert_output --partial "Error! The resolution 'xyz:abc' is not provided in the correct 'width:height' format."
   assert_output --partial "Usage:"
 }
 
 @test "file must exist" {
   run fader.sh --file /tmp/bar.mp4 --fade-in 1
-  assert_output --partial "Error! Input file '/tmp/bar.mp4' does not exist"
+  assert_output --partial "Error! Input file '/tmp/bar.mp4' does not exist."
   assert_output --partial "Usage:"
 }
