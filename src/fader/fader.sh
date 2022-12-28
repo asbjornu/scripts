@@ -28,7 +28,7 @@ me=$(basename "$0")
 
 usage_message="\
 Usage:
-  ${me} --file <input-file> [--fade-in <seconds>] [--fade-out <seconds>] [--verbose]
+  ${me} --file <input-file> [--fade-in <seconds>] [--fade-out <seconds>] [--resolution <width:height>] [--verbose]
   ${me} --help
 Arguments:
   -f, --file <input-file>       The file to fade in and out. Must be a video
@@ -39,6 +39,10 @@ Arguments:
                                 number of seconds.
   -o, --fade-out <seconds>      Fade out the video and audio for the specified
                                 number of seconds.
+  -r, --resolution <w:h>        The resolution of the output video, provided as
+                                the number of pixels of width and height,
+                                separated by a colon. Defaults to the same
+                                resolution as the input video.
   -h, --help                    Displays this help screen.
   -v, --verbose                 Increase verbosity. Useful for debugging."
 
@@ -60,6 +64,9 @@ parse_args() {
           shift 2
       elif [[ $1 = "-o" || $1 = "--fade-out" ]]; then
           fade_out=${2// }
+          shift 2
+      elif [[ $1 = "-r" || $1 = "--resolution" ]]; then
+          resolution=${2// }
           shift 2
       elif [[ $1 = "-f" || $1 = "--file" ]]; then
           file=${2// }
@@ -91,6 +98,11 @@ parse_args() {
 
   if [[ -n $fade_out && ${fade_out//[0-9]} ]]; then
     error "Fade-out seconds '${fade_out}' not numerical."
+    return 1
+  fi
+
+  if [[ -n $resolution && ! $resolution =~ ^[0-9]+:[0-9]+$ ]]; then
+    error "The resolution '${resolution}' is not provided in the correct 'width:height' format."
     return 1
   fi
 
@@ -140,6 +152,9 @@ fade_in_out() {
   local video_filter
   local audio_filter
   local time_start
+  local out_file
+
+  out_file="${file}"
 
   if [[ -n "${fade_in}" ]]; then
     video_filter="fade=t=in:st=0:d=${fade_in}"
@@ -160,11 +175,16 @@ fade_in_out() {
     audio_filter="${audio_filter}afade=t=out:st=${time_start}:d=${fade_out}"
   fi
 
+  if [[ -n "${resolution}" ]]; then
+    video_filter="${video_filter},scale=${resolution}"
+    out_file="${out_file}_${resolution//:/x}"
+  fi
+
   ffmpeg \
     -i "${file}" \
     -filter:v "${video_filter}" \
     -filter:a "${audio_filter}" \
-    "${file}.mp4"
+    "${out_file}.mp4"
 }
 
 main() {
