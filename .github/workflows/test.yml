@@ -18,4 +18,6 @@ jobs:
         with:
           support-path: ${{ github.workspace }}/test/test_helper/bats-support
           assert-path: ${{ github.workspace }}/test/test_helper/bats-assert
+          detik-install: false
+          file-install: false
       - run: bats test
