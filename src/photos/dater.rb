@@ -5,21 +5,22 @@
 require 'date'
 require_relative 'lib/args'
 
+# Dater module.
 module Dater
   class << self
-    def date()
+    def date
       path = Args.parse
 
       Dir["#{path}/*"].each do |dir|
         next unless File.directory? dir
 
-        print_and_flush "."
+        print_and_flush '.'
 
         files = Dir.glob("#{dir}/*").select { |file| File.file? file }.sort
         from, to = period(dir)
         years = to - from + 1
         months = years * 12
-        file_per_month = files.length.to_f / months.to_f
+        file_per_month = files.length.to_f / months
         days_between_each_file = 28.to_f / file_per_month
 
         # puts "#{from} -- #{to} (#{days_between_each_file} / #{months} / #{files.length} / #{file_per_month})"
@@ -27,17 +28,17 @@ module Dater
         year = from
         month = 1
         day = 1
-        date = DateTime.new(year, month, day, 12, 00, 00, "+01:00")
+        date = DateTime.new(year, month, day, 12, 0o0, 0o0, '+01:00')
         date_s = date.strftime('%Y%m%d%H%M')
 
         touch = "touch -t #{date_s} '#{dir}'"
         # puts touch
         system touch
 
-        files.each_with_index do |file, index|
-          print_and_flush "."
+        files.each_with_index do |file, _index|
+          print_and_flush '.'
 
-          date = DateTime.new(year, month, day, 12, 00, 00, "+01:00")
+          date = DateTime.new(year, month, day, 12, 0o0, 0o0, '+01:00')
           date_s = date.strftime('%Y%m%d%H%M')
 
           # num = "#{index}."

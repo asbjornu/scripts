@@ -3,12 +3,13 @@
 
 require_relative 'lib/gource_combinator'
 
+# Gource module.
 module Gource
   class << self
     def combine
       if ARGV[0].nil? || ARGV[0].strip.empty?
         print 'GitHub owner: '
-        owner = STDIN.gets.chomp
+        owner = $stdin.gets.chomp
       else
         owner = ARGV[0]
       end
@@ -19,13 +20,13 @@ module Gource
       if access_token.nil? || access_token.strip.empty?
         puts 'GITHUB_TOKEN environment variable is not set. Please enter your credentials.'
         print 'Username: '
-        username = STDIN.gets.chomp
+        username = $stdin.gets.chomp
 
         print 'Password: '
-        password = STDIN.gets.chomp
+        password = $stdin.gets.chomp
 
         print '2FA code: '
-        two_factor_code = STDIN.gets.chomp
+        two_factor_code = $stdin.gets.chomp
 
         credentials[:username] = username
         credentials[:password] = password
