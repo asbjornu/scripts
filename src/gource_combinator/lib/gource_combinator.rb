@@ -3,6 +3,7 @@
 require 'octokit'
 require 'fileutils'
 
+# Gource module.
 module Gource
   ## Combine and clean logs ready for gource
   ## By Asbjørn Ulsberg
@@ -56,14 +57,14 @@ module Gource
         `mv x.log combo.log`
 
         # fix username mapping
-        username_map.each do |name, fixed_name|
+        username_map.each do |_name, _fixed_name|
           `cat combo.log |sed "s/|$k|/|${user_fix[$k]}|/" >x.log`
           `mv x.log combo.log`
         end
 
         # keep langs, ignore .md update noise.
-        #mv combo.log all.log
-        #cat all.log |grep -E "\.(py|java|R|r|ipynb|scala|sh|sql|cs|js|do|hs)$" >combo.log
+        # mv combo.log all.log
+        # cat all.log |grep -E "\.(py|java|R|r|ipynb|scala|sh|sql|cs|js|do|hs)$" >combo.log
 
         # get github avatars
         # for user in $(cat combo.log |awk -F '|' '{print $2}' |sort |uniq) ;do
@@ -83,18 +84,20 @@ module Gource
           client = Octokit::Client.new(access_token: credentials[:access_token])
         elsif credentials.key? :netrc
           puts 'Authorizing with GitHub using netrc.'
-          client = Octokit::Client.new(:netrc => true)
+          client = Octokit::Client.new(netrc: true)
           client.login
         else
           puts 'Authorizing with GitHub using username and password.'
-          client = Octokit::Client.new(:login => credentials[:login], :password => credentials[:password])
+          client = Octokit::Client.new(login: credentials[:login], password: credentials[:password])
           # Exchange username, password and two factor code for an access
           # token if a two factor code is provided.
-          client.create_authorization(
-            scopes: ['repo'],
-            note: 'gource_combinator',
-            headers: { 'X-GitHub-OTP' => credentials[:two_factor_code] }
-          ) if credentials.key? :two_factor_code
+          if credentials.key? :two_factor_code
+            client.create_authorization(
+              scopes: ['repo'],
+              note: 'gource_combinator',
+              headers: { 'X-GitHub-OTP' => credentials[:two_factor_code] }
+            )
+          end
         end
 
         client

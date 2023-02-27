@@ -2,6 +2,6 @@
 
 require 'octokit'
 
+# GitHubStats module.
 module GitHubStats
-
 end

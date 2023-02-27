@@ -2,7 +2,9 @@
 
 require 'docopt'
 
+# Dater module.
 module Dater
+  # Args class.
   class Args
     def self.parse
       doc = <<~DOCOPT
@@ -48,13 +50,13 @@ module Dater
       args = {}
 
       begin
-        args = Docopt::docopt(doc)
+        args = Docopt.docopt(doc)
       rescue Docopt::Exit => e
         puts e.message
         exit 1
       end
 
-      path = args["<path>"]
+      path = args['<path>']
       unless path.is_a?(String)
         puts doc
         exit 1

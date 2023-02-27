@@ -4,6 +4,7 @@
 require_relative 'lib/args'
 require_relative 'lib/track_parser'
 
+# Love Importer module.
 module LoveImporter
   class << self
     def exec
@@ -21,10 +22,9 @@ module LoveImporter
       TrackParser.parse(path) do |track|
         puts "Loving '#{track.artist} – #{track.name}'..."
 
-        as = "osascript -e 'tell application \"Music\" to set loved of (first file track of playlist \"Library\" whose artist contains \"%{artist}\" and name contains \"%{name}\") to true'" % {
-          artist: escape(track.artist),
-          name: escape(track.name)
-        }
+        as = format(
+          "osascript -e 'tell application \"Music\" to set loved of (first file track of playlist \"Library\" whose artist contains \"%<artist>s\" and name contains \"%<name>s\") to true'", artist: escape(track.artist), name: escape(track.name)
+        )
 
         success = system as
 
@@ -38,7 +38,7 @@ module LoveImporter
     def escape(string)
       # Escape quotes with a crazy sequence of quote characters thanks to <https://stackoverflow.com/a/1250279/61818>
       quote_map = {
-        '"' => "\\\"",
+        '"' => '\"',
         "'" => "'\"'\"'"
       }
 
