@@ -2,4 +2,4 @@
 
 source 'https://rubygems.org'
 
-gem 'google-apis-gmail_v1', '~> 0.28'
+gem 'google-apis-gmail_v1', '~> 0.29'
