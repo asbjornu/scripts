@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Post Splitter</title>
+        <link rel="stylesheet" href="pico.min.css" />
+        <script src="splitter.js"></script>
+    </head>
+    <body>
+        <main class="container">
+            <h1>Post Splitter</h1>
+            <p>
+                Split your long-form posts into bite-sized chunks, with optional
+                hashtags applied to every chunk.
+            </p>
+            <form>
+                <textarea id="post" placeholder="Paste or type in your long-form post." required></textarea>
+                <div class="grid">
+                    <label for="length">
+                        Length:
+                        <input id="length" placeholder="The maximum length of each chunk." required>
+                    </label>
+                    <label for="hashtags">
+                        Hashtags:
+                        <input id="hashtags" placeholder="Optional hashtags to apply to every chunk.">
+                    </label>
+                </div>
+                <button>Split</button>
+            </form>
+        </main>
+    </body>
+</html>
