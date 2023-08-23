@@ -14,16 +14,16 @@
                 hashtags applied to every chunk.
             </p>
             <form>
-                <textarea id="post" placeholder="Paste or type in your long-form post." required></textarea>
+                <textarea id="post" aria-label="Post" placeholder="Paste or type in your long-form post." required></textarea>
                 <div class="grid">
                     <label for="length">
                         Length:
-                        <input id="length" placeholder="The maximum length of each chunk." required value="500">
+                        <input id="length" aria-label="Length" placeholder="The maximum length of each chunk." required value="500">
                     </label>
 
                     <label for="trailers">
                         Trailers:
-                        <input id="trailers" placeholder="Optional trailers (such as hashtags) to append to every chunk.">
+                        <input id="trailers" aria-label="Trailers" placeholder="Optional trailers (such as hashtags) to append to every chunk.">
                     </label>
                 </div>
                 <button>Split</button>
