@@ -1,21 +1,16 @@
 'use strict';
 
 (function() {
-  const findSplitIndex = function(primaryPunctuationIndices, secondaryPunctuationIndices, maxChunkLength, hashtags) {
+  const findSplitIndex = function(primaryPunctuationIndices, secondaryPunctuationIndices, maxChunkLength, trailers) {
     const minChunkLength = maxChunkLength / 2;
-    const hashtagLength = hashtags.length > 0 ? hashtags.length + 2 : 0;
-
-    console.log({maxChunkLength, minChunkLength, primaryPunctuationIndices, secondaryPunctuationIndices, hashtags, hashtagLength});
+    const trailerLength = trailers.length > 0 ? trailers.length + 2 : 0;
 
     const punctuationWithinThreshold = function(punctuationIndices) {
       for (let i = punctuationIndices.length - 1; i >= 0; i--) {
         const punctuationIndex = punctuationIndices[i];
-        const punctuationWithHashtagLength = punctuationIndex + hashtagLength;
+        const punctuationWithTrailerLength = punctuationIndex + trailerLength;
 
-        console.log({punctuationIndex, punctuationWithHashtagLength});
-
-        if (punctuationWithHashtagLength < maxChunkLength && punctuationIndex > minChunkLength) {
-          console.log('Found punctuation within threshold.', punctuationIndex);
+        if (punctuationWithTrailerLength < maxChunkLength && punctuationIndex > minChunkLength) {
           return punctuationIndex;
         }
       }
@@ -33,21 +28,19 @@
       return secondaryPunctuationIndex;
     }
 
-    console.log('No punctuation found within threshold. Splitting at max length.', maxChunkLength);
-
     // TODO: We should keep track of whitespace as a fallback for when
     //       punctuation can't be found within the threshold so we don't
     //       perform the split in the middle of a word.
     return maxChunkLength;
   };
 
-  const split = function(post, maxChunkLength, hashtags) {
+  const split = function(post, maxChunkLength, trailers) {
     const chunks = [];
     const primaryPunctuations = ['.', '?', '!'];
     const secondaryPunctuations = [',', ';', ':'];
     const primaryPunctuationIndices = [];
     const secondaryPunctuationIndices = [];
-    const hashtagLength = hashtags.length > 0 ? hashtags.length + 2 : 0;
+    const trailerLength = trailers.length > 0 ? trailers.length + 2 : 0;
     let lastPunctuationIndex = -1;
 
     for (let i = 0; i < post.length; i++) {
@@ -61,17 +54,16 @@
         secondaryPunctuationIndices.push(lastPunctuationIndex);
       }
 
-      if ((i + hashtagLength) < maxChunkLength) {
+      if ((i + trailerLength) < maxChunkLength) {
         continue;
       }
 
-      const splitIndex = findSplitIndex(
-        primaryPunctuationIndices,
-        secondaryPunctuationIndices,
-        maxChunkLength,
-        hashtags);
+      const splitIndex = findSplitIndex(primaryPunctuationIndices,
+                                        secondaryPunctuationIndices,
+                                        maxChunkLength,
+                                        trailers);
 
-      const chunk  = post.substring(0, splitIndex + 1) + ' ' + hashtags;
+      const chunk  = post.substring(0, splitIndex + 1) + ' ' + trailers;
       chunks.push(chunk.trim());
       post = post.substring(splitIndex + 1);
       i = 0;
@@ -81,7 +73,7 @@
     }
 
     if (post.trim().length > 0) {
-      chunks.push(post + ' ' + hashtags);
+      chunks.push(post + ' ' + trailers);
     }
 
     return chunks;
@@ -90,12 +82,13 @@
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementsByTagName('form')[0];
     const main = document.getElementsByTagName('main')[0];
-    const hashtags = document.getElementById('hashtags');
+    const trailers = document.getElementById('trailers');
     const post = document.getElementById('post');
-    const length = document.getElementById('length')
+    const length = document.getElementById('length');
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+
       let ol = document.getElementById('chunks');
       if (!ol) {
         ol = document.createElement('ol');
@@ -108,7 +101,7 @@
       }
 
       const maxChunkLength = parseInt(length.value, 10);
-      const chunks = split(post.value, maxChunkLength, hashtags.value);
+      const chunks = split(post.value, maxChunkLength, trailers.value);
 
       for (let chunk of chunks) {
         const li = document.createElement('li');
