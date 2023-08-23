@@ -61,6 +61,29 @@
     });
   };
 
+  const isSentenceTerminator = function(post, index, punctuations) {
+    const character = post[index];
+
+    if (!punctuations.includes(character)) {
+      return false;
+    }
+
+    // If the found punctuation is the last character of the post,
+    // we can assume that the punctuation is a sentence terminator.
+    if (post.length <= (index + 1)) {
+      return true;
+    }
+
+    // If the next character of the found punctuation is a whitespace,
+    // we can assume that the punctuation is a sentence terminator and not
+    // part of a URL or similar.
+    if (/\s/.test(post[index + 1])) {
+      return true;
+    }
+
+    return false;
+  };
+
   const split = function(post, maxChunkLength, trailers, numbering) {
     const chunks = [];
     const primaryPunctuations = ['.', '?', '!'];
@@ -71,12 +94,10 @@
     let lastPunctuationIndex = -1;
 
     for (let i = 0; i < post.length; i++) {
-      const character = post[i];
-
-      if (primaryPunctuations.includes(character)) {
+      if (isSentenceTerminator(post, i, primaryPunctuations)) {
         lastPunctuationIndex = i;
         primaryPunctuationIndices.push(lastPunctuationIndex);
-      } else if (secondaryPunctuations.includes(character)) {
+      } else if (isSentenceTerminator(post, i, secondaryPunctuations)) {
         lastPunctuationIndex = i;
         secondaryPunctuationIndices.push(lastPunctuationIndex);
       }
