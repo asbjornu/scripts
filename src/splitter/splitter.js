@@ -1,9 +1,8 @@
 'use strict';
 
 (function() {
-  const findSplitIndex = function(primaryPunctuationIndices, secondaryPunctuationIndices, maxChunkLength, trailers) {
+  const findSplitIndex = function(primaryPunctuationIndices, secondaryPunctuationIndices, maxChunkLength, trailerLength) {
     const minChunkLength = maxChunkLength / 2;
-    const trailerLength = trailers.length > 0 ? trailers.length + 2 : 0;
 
     const punctuationWithinThreshold = function(punctuationIndices) {
       for (let i = punctuationIndices.length - 1; i >= 0; i--) {
@@ -34,13 +33,41 @@
     return maxChunkLength;
   };
 
-  const split = function(post, maxChunkLength, trailers) {
+  const findTrailerLength = function(postLength, maxChunkLength, trailers, numbering) {
+    let trailerLength = trailers.trim().length > 0 ? trailers.length + 2 : 0;
+
+    if (numbering) {
+      const approximateNumberOfChunks = postLength / maxChunkLength;
+      const numberOfDigits = Math.floor(Math.log10(approximateNumberOfChunks)) + 1;
+
+      trailerLength += (numberOfDigits * 2) + 1;
+    }
+
+    return trailerLength;
+  };
+
+  const appendTrailers = function(chunks, trailers, numbering) {
+    return chunks.map(function(chunk, index) {
+      const t = (function(t) {
+        if (numbering) {
+          const chunkNumber = index + 1;
+          return `${chunkNumber}/${chunks.length} ${t}`;
+        }
+
+        return t;
+      })(trailers);
+
+      return `${chunk}\n\n${t}`.trim();
+    });
+  };
+
+  const split = function(post, maxChunkLength, trailers, numbering) {
     const chunks = [];
     const primaryPunctuations = ['.', '?', '!'];
     const secondaryPunctuations = [',', ';', ':'];
     const primaryPunctuationIndices = [];
     const secondaryPunctuationIndices = [];
-    const trailerLength = trailers.length > 0 ? trailers.length + 2 : 0;
+    const trailerLength = findTrailerLength(post.length, maxChunkLength, trailers, numbering);
     let lastPunctuationIndex = -1;
 
     for (let i = 0; i < post.length; i++) {
@@ -61,9 +88,9 @@
       const splitIndex = findSplitIndex(primaryPunctuationIndices,
                                         secondaryPunctuationIndices,
                                         maxChunkLength,
-                                        trailers);
+                                        trailerLength);
 
-      const chunk  = post.substring(0, splitIndex + 1) + ' ' + trailers;
+      const chunk  = post.substring(0, splitIndex + 1);
       chunks.push(chunk.trim());
       post = post.substring(splitIndex + 1);
       i = 0;
@@ -73,10 +100,10 @@
     }
 
     if (post.trim().length > 0) {
-      chunks.push(post + ' ' + trailers);
+      chunks.push(post.trim());
     }
 
-    return chunks;
+    return appendTrailers(chunks, trailers, numbering);
   };
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -85,6 +112,7 @@
     const trailers = document.getElementById('trailers');
     const post = document.getElementById('post');
     const length = document.getElementById('length');
+    const numbering = document.getElementById('numbering');
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -101,7 +129,7 @@
       }
 
       const maxChunkLength = parseInt(length.value, 10);
-      const chunks = split(post.value, maxChunkLength, trailers.value);
+      const chunks = split(post.value, maxChunkLength, trailers.value, numbering.checked);
 
       for (let chunk of chunks) {
         const li = document.createElement('li');
