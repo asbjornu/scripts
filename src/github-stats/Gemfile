@@ -2,4 +2,4 @@
 
 source 'https://rubygems.org'
 
-gem 'octokit', '~> 8'
+gem 'octokit', '~> 9'
