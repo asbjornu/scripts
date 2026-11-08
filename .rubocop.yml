@@ -1,1 +1,6 @@
 inherit_from: .rubocop_todo.yml
+
+AllCops:
+  # The scripts target macOS system Ruby 2.7; lint for that syntax even
+  # though CI runs RuboCop on a newer Ruby.
+  TargetRubyVersion: 2.7
