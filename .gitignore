@@ -28,3 +28,6 @@ tmp
 *.log*
 gource_combinator/combo.csv
 *.mp4
+
+# Locally installed bats helper libraries
+test/test_helper/

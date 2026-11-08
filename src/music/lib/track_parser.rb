@@ -19,7 +19,7 @@ module LoveImporter
 
       library = Plist.parse_xml(path)
 
-      library['Tracks'].each do |_id, track|
+      library['Tracks'].each_value do |track|
         next unless track['Loved']
 
         yield Track.new(track)

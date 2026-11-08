@@ -13,13 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mig4/setup-bats@v1
-      - uses: brokenpip3/setup-bats-libs@1.5.2
-        with:
-          support-path: ${{ github.workspace }}/test/test_helper/bats-support
-          assert-path: ${{ github.workspace }}/test/test_helper/bats-assert
-          detik-install: false
-          file-install: false
+      - name: Install bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+      - name: Install bats helper libraries
+        run: |
+          mkdir -p test/test_helper
+          git clone --depth 1 --branch v0.3.0 \
+            https://github.com/bats-core/bats-support.git \
+            test/test_helper/bats-support
+          git clone --depth 1 --branch v2.1.0 \
+            https://github.com/bats-core/bats-assert.git \
+            test/test_helper/bats-assert
       - run: bats test
 
   rubocop:
@@ -28,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: 3.3
           bundler-cache: true
       - uses: haya14busa/action-cond@v1
         id: reporter
